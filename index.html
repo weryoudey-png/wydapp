@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-white">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>WYD (WhereYouDey) - Hyperlocal Search & Neighbor Commerce</title>
+  <meta name="description" content="Find verified goods, artisan services, and neighbor P2P trades right in your neighborhood." />
+  <meta name="theme-color" content="#00875A" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="WYD" />
+  
+  <!-- OpenGraph / Social Meta -->
+  <meta property="og:title" content="WYD (WhereYouDey) - Hyperlocal Search" />
+  <meta property="og:description" content="Local discovery and search engine for goods, services, and neighbor P2P in your neighborhood." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- PWA Manifest & App Icons -->
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+  <link rel="apple-touch-icon" href="./icon.svg" />
+
+  <!-- Global Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            emeraldBrand: {
+              DEFAULT: '#00875A',
+              50: '#E3FCEF',
+              100: '#C1F5D9',
+              200: '#7EE2B8',
+              500: '#00875A',
+              600: '#006644',
+              700: '#004D34',
+            },
+            surfaceM3: '#FFFFFF',
+            surfaceGray: '#F4F4F5',
+            surfaceM3Variant: '#ECEEF0',
+          },
+          boxShadow: {
+            m3Level1: '0 1px 3px 1px rgba(0, 0, 0, 0.08), 0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+            m3Level2: '0 2px 6px 2px rgba(0, 0, 0, 0.10), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+            m3Level3: '0 4px 12px 3px rgba(0, 0, 0, 0.12), 0 1px 3px 0 rgba(0, 0, 0, 0.08)',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      background-color: #FFFFFF;
+      color: #18181B;
+    }
+    
+    /* Smooth transition for splash loader */
+    #splash-loader {
+      transition: opacity 0.45s ease-out, visibility 0.45s ease-out;
+    }
+    
+    /* Material 3 ripple effect & tap states */
+    .m3-press-active:active {
+      transform: scale(0.97);
+      opacity: 0.92;
+    }
+    
+    /* Custom scrollbar hiding for pills */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* Pulsing animations */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.2; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .animate-pulse-ring {
+      animation: pulse-ring 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+
+<body class="h-full text-zinc-900 bg-zinc-50 antialiased select-none flex flex-col justify-between">
+
+  <!-- ========================================== -->
+  <!-- 1. MATERIAL 3 SPLASH LOADER (Step 1)       -->
+  <!-- ========================================== -->
+  <div id="splash-loader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white px-6">
+    <div class="relative flex items-center justify-center mb-6">
+      <!-- Outer pulsing ambient aura -->
+      <div class="absolute w-28 h-28 rounded-full bg-emerald-100/60 animate-pulse-ring pointer-events-none"></div>
+      
+      <!-- Logo Avatar: Circular Emerald Green (#00875A) badge with a white 'W' -->
+      <div class="relative w-20 h-20 rounded-full bg-[#00875A] shadow-m3Level2 flex items-center justify-center transform transition-transform duration-500 hover:scale-105">
+        <span class="text-white font-extrabold text-4xl tracking-tight leading-none select-none font-sans">W</span>
+      </div>
+    </div>
+
+    <!-- Brand Titles -->
+    <h1 class="text-2xl font-bold tracking-tight text-zinc-900 mb-1">WYD</h1>
+    <p class="text-sm font-medium text-emerald-700 tracking-wide mb-6">WhereYouDey</p>
+
+    <!-- Material 3 indeterminate loader bar -->
+    <div class="w-48 h-1.5 bg-zinc-100 rounded-full overflow-hidden relative shadow-inner">
+      <div id="splash-progress-bar" class="absolute top-0 bottom-0 left-0 bg-[#00875A] rounded-full w-1/3 animate-[pulse_1.5s_ease-in-out_infinite] transition-all duration-300"></div>
+    </div>
+
+    <p id="splash-status-text" class="text-xs font-normal text-zinc-500 mt-4 tracking-normal transition-all">
+      Connecting to neighborhood radar...
+    </p>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- TOP ALERT BANNER (Fallback Geo Notification)-->
+  <!-- ========================================== -->
+  <div id="top-alert-banner" class="hidden fixed top-0 inset-x-0 z-40 bg-amber-500 text-white px-4 py-2.5 shadow-md flex items-center justify-between transition-all transform duration-300">
+    <div class="flex items-center gap-2 text-xs md:text-sm font-medium cursor-pointer" onclick="openLocationPickerModal()">
+      <span class="text-base">📍</span>
+      <span id="top-alert-banner-text">Showing items near Gwarinpa. Tap to pinpoint exactly.</span>
+    </div>
+    <button onclick="dismissTopAlert()" class="p-1 text-white hover:bg-amber-600 rounded-full text-xs font-bold leading-none ml-2" aria-label="Dismiss banner">✕</button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MAIN APPLICATION SHELL CONTAINER           -->
+  <!-- ========================================== -->
+  <div id="app-container" class="opacity-0 transition-opacity duration-500 flex flex-col flex-1 h-full w-full max-w-2xl mx-auto bg-white relative pb-20 shadow-sm min-h-screen">
+    
+    <!-- TOP APP BAR -->
+    <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-100 px-4 py-3 flex items-center justify-between">
+      <!-- Left: WYD Branding -->
+      <div class="flex items-center gap-2.5 cursor-pointer m3-press-active" onclick="switchNavTab('view-home')">
+        <div class="w-9 h-9 rounded-full bg-[#00875A] flex items-center justify-center shadow-sm">
+          <span class="text-white font-bold text-lg leading-none font-sans">W</span>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <span class="font-extrabold text-lg tracking-tight text-zinc-900 leading-none">WYD</span>
+            <span class="text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 tracking-wider">Abuja</span>
+          </div>
+          <span class="text-[11px] font-medium text-zinc-500 leading-none block mt-0.5">WhereYouDey</span>
+        </div>
+      </div>
+
+      <!-- Right: Active Location Badge Button -->
+      <button id="location-badge-btn" onclick="openLocationPickerModal()" class="flex items-center gap-1.5 bg-zinc-100 hover:bg-zinc-200 active:bg-zinc-300 text-zinc-800 text-xs font-semibold py-1.5 px-3 rounded-full transition-colors border border-zinc-200/80 shadow-sm m3-press-active">
+        <span class="text-sm">📍</span>
+        <span id="active-location-label">Gwarinpa (5km)</span>
+        <svg class="w-3.5 h-3.5 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+    </header>
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: HOME SEARCH ENGINE CANVAS          -->
+    <!-- ID: 'view-home'                            -->
+    <!-- ========================================== -->
+    <main id="view-home" class="flex-1 flex flex-col px-4 pt-6 pb-6 overflow-y-auto">
+      
+      <!-- Brand Hero / Greeting (subtle) -->
+      <div class="text-center mb-6 pt-2">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-800 text-xs font-medium mb-3">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+          <span>Live Abuja Neighborhood Grid</span>
+        </div>
+        <h2 class="text-2xl font-extrabold text-zinc-900 tracking-tight">What do you need right now?</h2>
+        <p class="text-xs text-zinc-500 mt-1">Verified artisans, gas suppliers, stores & neighbor trades within walking distance</p>
+      </div>
+
+      <!-- Google-Style Center Search Input Box -->
+      <div class="relative w-full max-w-xl mx-auto mb-4">
+        <div class="relative flex items-center w-full bg-white rounded-full border border-zinc-200 shadow-m3Level1 hover:shadow-m3Level2 focus-within:shadow-m3Level2 focus-within:border-emerald-600 transition-all duration-200 overflow-hidden">
+          
+          <!-- Absolute Magnifying Glass Icon -->
+          <div class="absolute left-4 flex items-center pointer-events-none text-zinc-400">
+            <svg class="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+
+          <!-- Prominent Search Input -->
+          <input 
+            type="search" 
+            id="wyd-main-search" 
+            placeholder="Search cooking gas, plumber, iPhone, braids..." 
+            class="w-full pl-12 pr-12 py-3.5 text-sm md:text-base text-zinc-800 bg-transparent placeholder-zinc-400 focus:outline-none"
+            autocomplete="off"
+          />
+
+          <!-- Action Button inside search (Clear or Search Arrow) -->
+          <button id="clear-search-btn" class="hidden absolute right-3 p-1.5 rounded-full text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100 transition-colors" onclick="clearSearchInput()" aria-label="Clear search">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3 Shortcut Pill Buttons Horizontally -->
+      <div class="flex items-center justify-center gap-2 overflow-x-auto no-scrollbar py-1 mb-6">
+        <button onclick="triggerPillSearch('Shop Goods', 'goods')" class="m3-press-active shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold border border-zinc-200 transition-all shadow-sm">
+          <span>🛍️</span>
+          <span>Shop Goods</span>
+        </button>
+        <button onclick="triggerPillSearch('Hire Services', 'services')" class="m3-press-active shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold border border-zinc-200 transition-all shadow-sm">
+          <span>🔧</span>
+          <span>Hire Services</span>
+        </button>
+        <button onclick="triggerPillSearch('Neighbor P2P', 'p2p')" class="m3-press-active shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-800 text-xs font-semibold border border-zinc-200 transition-all shadow-sm">
+          <span>♻️</span>
+          <span>Neighbor P2P</span>
+        </button>
+      </div>
+
+      <!-- Default Prompt Hints Canvas (Before Search Execution) -->
+      <div id="default-prompt-canvas" class="flex-1 flex flex-col items-center justify-center text-center px-4 py-8 bg-zinc-50/70 rounded-2xl border border-dashed border-zinc-200 mb-6">
+        <div class="w-12 h-12 rounded-full bg-emerald-100/70 text-[#00875A] flex items-center justify-center mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <h3 class="text-sm font-semibold text-zinc-800 mb-1">Hyperlocal Search is Active</h3>
+        <p class="text-xs text-zinc-500 max-w-xs mb-4">
+          Type any item or click a shortcut pill above to instantly view verified providers within your <span class="font-medium text-zinc-700" id="hint-radius-text">5km radius in Gwarinpa</span>.
+        </p>
+        <div class="flex flex-wrap items-center justify-center gap-1.5 max-w-sm">
+          <span class="text-[11px] text-zinc-400">Popular nearby:</span>
+          <button onclick="quickQuery('Cooking gas')" class="text-[11px] bg-white border border-zinc-200 px-2.5 py-1 rounded-full text-zinc-700 hover:border-emerald-600 transition-colors">Cooking gas</button>
+          <button onclick="quickQuery('Electrician')" class="text-[11px] bg-white border border-zinc-200 px-2.5 py-1 rounded-full text-zinc-700 hover:border-emerald-600 transition-colors">Electrician</button>
+          <button onclick="quickQuery('Plumber')" class="text-[11px] bg-white border border-zinc-200 px-2.5 py-1 rounded-full text-zinc-700 hover:border-emerald-600 transition-colors">Plumber</button>
+          <button onclick="quickQuery('iPhone')" class="text-[11px] bg-white border border-zinc-200 px-2.5 py-1 rounded-full text-zinc-700 hover:border-emerald-600 transition-colors">iPhone</button>
+          <button onclick="quickQuery('Braids')" class="text-[11px] bg-white border border-zinc-200 px-2.5 py-1 rounded-full text-zinc-700 hover:border-emerald-600 transition-colors">Braids</button>
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- HIDDEN SEARCH RESULTS WRAPPER CONTAINER    -->
+      <!-- ID: 'search-results-wrapper'               -->
+      <!-- ========================================== -->
+      <section id="search-results-wrapper" class="hidden flex-1 flex-col">
+        <!-- Results Header & Filters -->
+        <div class="flex items-center justify-between mb-3">
+          <div>
+            <h3 id="search-query-heading" class="text-sm font-bold text-zinc-900">Nearby Results</h3>
+            <span id="search-count-label" class="text-[11px] text-zinc-500">6 listings found within 5km</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <button onclick="filterResults('all')" class="text-[11px] font-medium px-2 py-1 rounded-md bg-zinc-200 text-zinc-800" id="filter-all-btn">All</button>
+            <button onclick="filterResults('verified')" class="text-[11px] font-medium px-2 py-1 rounded-md bg-zinc-100 text-zinc-600 hover:bg-zinc-200" id="filter-verified-btn">Verified</button>
+            <button onclick="filterResults('urgent')" class="text-[11px] font-medium px-2 py-1 rounded-md bg-zinc-100 text-zinc-600 hover:bg-zinc-200" id="filter-urgent-btn">Instant</button>
+          </div>
+        </div>
+
+        <!-- Result Cards Grid -->
+        <div id="results-cards-grid" class="grid grid-cols-1 gap-3 pb-8">
+          <!-- Dynamically generated or seeded items -->
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: MY BUSINESS SUB-VIEW               -->
+    <!-- ID: 'view-my-business'                     -->
+    <!-- ========================================== -->
+    <section id="view-my-business" class="hidden flex-1 flex-col px-4 pt-4 pb-6 overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-zinc-900">My Business Dashboard</h2>
+          <p class="text-xs text-zinc-500">Manage your local neighborhood shop & listings</p>
+        </div>
+        <button onclick="openNewListingModal()" class="px-3 py-1.5 bg-[#00875A] text-white rounded-lg text-xs font-semibold shadow-sm hover:bg-emerald-700 m3-press-active">
+          + Add Listing
+        </button>
+      </div>
+
+      <!-- Business Performance Metrics -->
+      <div class="grid grid-cols-2 gap-3 mb-5">
+        <div class="bg-zinc-50 border border-zinc-200 p-3 rounded-xl">
+          <span class="text-[11px] font-medium text-zinc-500 block mb-1">Estate Impressions</span>
+          <span class="text-xl font-extrabold text-zinc-900">1,842</span>
+          <span class="text-[10px] text-emerald-600 block mt-0.5">↑ 24% this week in Gwarinpa</span>
+        </div>
+        <div class="bg-zinc-50 border border-zinc-200 p-3 rounded-xl">
+          <span class="text-[11px] font-medium text-zinc-500 block mb-1">Direct WhatsApp Leads</span>
+          <span class="text-xl font-extrabold text-[#00875A]">47</span>
+          <span class="text-[10px] text-zinc-500 block mt-0.5">High conversion rate</span>
+        </div>
+      </div>
+
+      <!-- Active Listings Shelf -->
+      <div class="mb-4">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-2">My Live Listings (2)</h3>
+        <div class="space-y-2.5">
+          <div class="p-3 bg-white border border-zinc-200 rounded-xl flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-800 font-bold text-sm">
+                GAS
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold text-zinc-900">12.5kg Fast Refill & Cylinder Exchange</h4>
+                <p class="text-xs text-zinc-500">₦14,500 • 3rd Avenue Gwarinpa • Active</p>
+              </div>
+            </div>
+            <span class="inline-block px-2 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 font-semibold rounded-full">Live</span>
+          </div>
+
+          <div class="p-3 bg-white border border-zinc-200 rounded-xl flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-800 font-bold text-sm">
+                TECH
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold text-zinc-900">Original iPhone 20W Fast Chargers</h4>
+                <p class="text-xs text-zinc-500">₦12,000 • 1st Avenue Plaza • Active</p>
+              </div>
+            </div>
+            <span class="inline-block px-2 py-0.5 text-[10px] bg-emerald-100 text-emerald-800 font-semibold rounded-full">Live</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Tips Card -->
+      <div class="p-3.5 bg-emerald-50 rounded-xl border border-emerald-100 text-xs text-emerald-900">
+        <strong class="font-bold block mb-1">💡 Pro-Tip for Gwarinpa Vendors:</strong>
+        Add your exact Avenue number or landmark gate. 86% of customers choose sellers located within 1.5km for 15-minute handoffs.
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: CONFIRM SUB-VIEW (Escrow / Trades) -->
+    <!-- ID: 'view-confirm'                         -->
+    <!-- ========================================== -->
+    <section id="view-confirm" class="hidden flex-1 flex-col px-4 pt-4 pb-6 overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-xl font-bold text-zinc-900">Confirm & Escrow</h2>
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
+          </div>
+          <p class="text-xs text-zinc-500">Active transaction verifications & safe meetups</p>
+        </div>
+      </div>
+
+      <!-- Escrow Protection Guarantee Banner -->
+      <div class="p-3.5 bg-zinc-900 text-white rounded-xl mb-4 shadow-m3Level1 flex items-start gap-3">
+        <div class="text-xl">🛡️</div>
+        <div>
+          <h4 class="text-xs font-bold text-white mb-0.5">WYD NeighborSafe Escrow Active</h4>
+          <p class="text-[11px] text-zinc-300 leading-relaxed">
+            Funds are securely locked until you meet, physically inspect goods, and enter the release PIN.
+          </p>
+        </div>
+      </div>
+
+      <!-- Pending Confirmations List -->
+      <div class="space-y-3">
+        <div class="p-4 bg-white border-2 border-red-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-bold text-red-600 uppercase tracking-wider bg-red-50 px-2 py-0.5 rounded-full">Action Required</span>
+            <span class="text-xs text-zinc-500">Order #WYD-704</span>
+          </div>
+          <h4 class="text-sm font-bold text-zinc-900 mb-0.5">Cooking Gas 12.5kg Delivery</h4>
+          <p class="text-xs text-zinc-600 mb-3">Rider arriving at: House 14, 3rd Avenue Gwarinpa • Total: <strong>₦14,500</strong></p>
+          
+          <div class="p-2.5 bg-zinc-50 rounded-lg flex items-center justify-between mb-3 text-xs">
+            <span class="text-zinc-600">Verification Code:</span>
+            <span class="font-mono font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded">#8829</span>
+          </div>
+
+          <button onclick="handleConfirmRelease('Cooking Gas 12.5kg', '₦14,500')" class="w-full py-2.5 bg-[#00875A] hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg shadow-sm transition-colors m3-press-active">
+            Confirm Receipt & Release ₦14,500
+          </button>
+        </div>
+
+        <div class="p-4 bg-white border border-zinc-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider bg-emerald-50 px-2 py-0.5 rounded-full">Completed Handshake</span>
+            <span class="text-xs text-zinc-500">Yesterday</span>
+          </div>
+          <h4 class="text-sm font-semibold text-zinc-900 mb-0.5">Plumbing Trap Leak Fix</h4>
+          <p class="text-xs text-zinc-500">Engr Paul • ₦6,500 • Escrow released successfully</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 4: REVIEWS SUB-VIEW                   -->
+    <!-- ID: 'view-reviews'                         -->
+    <!-- ========================================== -->
+    <section id="view-reviews" class="hidden flex-1 flex-col px-4 pt-4 pb-6 overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-zinc-900">Neighborhood Reviews</h2>
+          <p class="text-xs text-zinc-500">Authentic community trust ratings in Gwarinpa</p>
+        </div>
+        <button onclick="openReviewModal()" class="px-3 py-1.5 bg-zinc-900 text-white rounded-lg text-xs font-semibold shadow-sm hover:bg-zinc-800 m3-press-active">
+          + Leave Review
+        </button>
+      </div>
+
+      <!-- Trust Score Metric -->
+      <div class="p-4 bg-emerald-50 border border-emerald-100 rounded-xl mb-4 flex items-center justify-between">
+        <div>
+          <span class="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Cluster Trust Index</span>
+          <div class="text-2xl font-black text-emerald-900">4.92 / 5.0</div>
+          <span class="text-[11px] text-emerald-700">Based on 318 neighborhood transactions</span>
+        </div>
+        <div class="text-right">
+          <span class="text-3xl">⭐️</span>
+        </div>
+      </div>
+
+      <!-- Review Stream -->
+      <div class="space-y-3">
+        <div class="p-3.5 bg-white border border-zinc-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-zinc-900">Chuka O. (3rd Avenue)</span>
+            <span class="text-amber-500 text-xs">★★★★★</span>
+          </div>
+          <p class="text-xs text-zinc-600 mb-1">"Musa Gas refill got to my gate in 14 minutes. Scale was accurate, cylinder valve was tested with soapy water. Very reliable."</p>
+          <span class="text-[10px] text-zinc-400">Review for: Express Gas Refill • 2 hrs ago</span>
+        </div>
+
+        <div class="p-3.5 bg-white border border-zinc-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-zinc-900">Ngozi A. (1st Avenue)</span>
+            <span class="text-amber-500 text-xs">★★★★★</span>
+          </div>
+          <p class="text-xs text-zinc-600 mb-1">"Engr. Paul fixed our overhead tank overflow switch smoothly. Fair price and very respectful artisan."</p>
+          <span class="text-[10px] text-zinc-400">Review for: Engr. Paul Plumbing • Yesterday</span>
+        </div>
+
+        <div class="p-3.5 bg-white border border-zinc-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-zinc-900">Ibrahim K. (4th Avenue Gate)</span>
+            <span class="text-amber-500 text-xs">★★★★☆</span>
+          </div>
+          <p class="text-xs text-zinc-600 mb-1">"P2P generator purchase went well. Used the WYD Escrow code at the gate. Smooth experience."</p>
+          <span class="text-[10px] text-zinc-400">Review for: Lutian Gen P2P • 2 days ago</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 5: COMPLAINTS SUB-VIEW                -->
+    <!-- ID: 'view-complaints'                      -->
+    <!-- ========================================== -->
+    <section id="view-complaints" class="hidden flex-1 flex-col px-4 pt-4 pb-6 overflow-y-auto">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <h2 class="text-xl font-bold text-zinc-900">Dispute & Complaints</h2>
+          <p class="text-xs text-zinc-500">Community moderation & rapid resolution center</p>
+        </div>
+        <button onclick="openComplaintModal()" class="px-3 py-1.5 bg-rose-600 text-white rounded-lg text-xs font-semibold shadow-sm hover:bg-rose-700 m3-press-active">
+          🚨 File Complaint
+        </button>
+      </div>
+
+      <!-- Policy Info -->
+      <div class="p-3.5 bg-rose-50 border border-rose-100 rounded-xl mb-4 text-xs text-rose-900 flex items-start gap-2.5">
+        <span class="text-base">⚠️</span>
+        <div class="leading-relaxed">
+          <strong>Community Protection Rule:</strong> Vendors or buyers reported for fake items or fraudulent activity are blocked across Abuja clusters within 15 minutes of investigation.
+        </div>
+      </div>
+
+      <!-- Active Tickets -->
+      <div class="space-y-3">
+        <div class="p-3.5 bg-white border border-zinc-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-zinc-900">Ticket #CMP-1049</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Resolved</span>
+          </div>
+          <h4 class="text-xs font-medium text-zinc-800 mb-1">Artisan Delayed Appointment (Plumber)</h4>
+          <p class="text-xs text-zinc-500 mb-2">Artisan was 45 mins late without notice. WYD mediator contacted vendor; vendor offered 20% discount on next labor.</p>
+          <span class="text-[10px] text-zinc-400">Closed 3 days ago</span>
+        </div>
+
+        <div class="p-3.5 bg-white border border-zinc-200 rounded-xl shadow-sm">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-zinc-900">Neighborhood Watch</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-zinc-100 text-zinc-600">All Clear</span>
+          </div>
+          <p class="text-xs text-zinc-600">Zero active scam flags in Gwarinpa 1st–5th Avenue sector today.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- GLOBAL 4-TAB BOTTOM NAVIGATION PANEL       -->
+    <!-- ========================================== -->
+    <nav class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-zinc-200/90 shadow-lg max-w-2xl mx-auto">
+      <div class="grid grid-cols-4 h-16 items-center px-1">
+        
+        <!-- Tab 1: My Business (Briefcase vector icon) -->
+        <button id="nav-btn-my-business" onclick="switchNavTab('view-my-business')" class="flex flex-col items-center justify-center py-1.5 text-zinc-500 hover:text-[#00875A] transition-colors m3-press-active">
+          <div class="relative">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20 7h-4V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10 5a1 1 0 011-1h2a1 1 0 011 1v2h-4V5z" />
+            </svg>
+          </div>
+          <span class="text-[11px] font-medium leading-none">My Business</span>
+        </button>
+
+        <!-- Tab 2: Confirm (Shield vector icon tracking active alert red circle dot) -->
+        <button id="nav-btn-confirm" onclick="switchNavTab('view-confirm')" class="flex flex-col items-center justify-center py-1.5 text-zinc-500 hover:text-[#00875A] transition-colors m3-press-active">
+          <div class="relative">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <!-- Active alert notification red circle dot -->
+            <span class="absolute -top-0.5 -right-1 w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full"></span>
+          </div>
+          <span class="text-[11px] font-medium leading-none">Confirm</span>
+        </button>
+
+        <!-- Tab 3: Reviews (Message-square text vector icon) -->
+        <button id="nav-btn-reviews" onclick="switchNavTab('view-reviews')" class="flex flex-col items-center justify-center py-1.5 text-zinc-500 hover:text-[#00875A] transition-colors m3-press-active">
+          <div class="relative">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
+          </div>
+          <span class="text-[11px] font-medium leading-none">Reviews</span>
+        </button>
+
+        <!-- Tab 4: Complaints (Alert-triangle vector icon) -->
+        <button id="nav-btn-complaints" onclick="switchNavTab('view-complaints')" class="flex flex-col items-center justify-center py-1.5 text-zinc-500 hover:text-[#00875A] transition-colors m3-press-active">
+          <div class="relative">
+            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <span class="text-[11px] font-medium leading-none">Complaints</span>
+        </button>
+
+      </div>
+    </nav>
+
+  </div>
+
+  <!-- ========================================== -->
+  <!-- 3. PWA BOTTOM SHEET INSTALL BANNER         -->
+  <!-- ID: 'pwa-install-banner'                   -->
+  <!-- ========================================== -->
+  <aside 
+    id="pwa-install-banner" 
+    class="hidden fixed bottom-18 inset-x-4 max-w-lg mx-auto z-50 bg-zinc-900 text-white rounded-2xl p-4 shadow-m3Level3 border border-zinc-700/60 transform transition-transform duration-300 ease-out"
+    role="dialog"
+    aria-label="Install App"
+  >
+    <div class="flex items-start gap-3">
+      <!-- Mini avatar -->
+      <div class="w-10 h-10 rounded-full bg-[#00875A] flex items-center justify-center shrink-0 shadow-sm mt-0.5">
+        <span class="text-white font-bold text-lg leading-none">W</span>
+      </div>
+      
+      <!-- Copy -->
+      <div class="flex-1 pr-2">
+        <h4 class="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-0.5">Fast Local Access</h4>
+        <p class="text-sm font-medium text-white leading-snug">
+          Add WYD to your Home Screen for faster local access
+        </p>
+      </div>
+
+      <!-- Close banner -->
+      <button onclick="dismissInstallBanner()" class="text-zinc-400 hover:text-white p-1 rounded-full text-sm leading-none" aria-label="Close install prompt">✕</button>
+    </div>
+
+    <!-- Buttons Action Row -->
+    <div class="mt-3.5 flex items-center justify-end gap-2">
+      <button onclick="dismissInstallBanner()" class="px-3 py-1.5 text-xs font-semibold text-zinc-300 hover:text-white transition-colors">
+        Not now
+      </button>
+      <button id="pwa-install-trigger-btn" onclick="executePWAInstallation()" class="px-4 py-2 bg-[#00875A] hover:bg-emerald-600 active:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all m3-press-active">
+        Install App
+      </button>
+    </div>
+  </aside>
+
+  <!-- ========================================== -->
+  <!-- INTERACTIVE LOCATION PICKER MODAL          -->
+  <!-- ========================================== -->
+  <div id="location-picker-modal" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-xs p-0 sm:p-4 transition-opacity">
+    <div class="bg-white w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 shadow-2xl animate-in fade-in slide-in-from-bottom duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-100 mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">📍</span>
+          <h3 class="text-sm font-bold text-zinc-900">Pinpoint Neighborhood Location</h3>
+        </div>
+        <button onclick="closeLocationPickerModal()" class="text-zinc-400 hover:text-zinc-700 text-sm p-1">✕</button>
+      </div>
+
+      <p class="text-xs text-zinc-500 mb-4">Choose your Abuja neighborhood cluster or refresh GPS:</p>
+
+      <button onclick="retryNativeGeolocation()" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 mb-4 bg-emerald-50 text-[#00875A] font-semibold text-xs rounded-xl border border-emerald-200 hover:bg-emerald-100 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18l-6-6m6 6l6-6m-6 6V4"/></svg>
+        <span>Use My Exact GPS Location</span>
+      </button>
+
+      <div class="grid grid-cols-2 gap-2 mb-4">
+        <button onclick="selectManualNeighborhood('Gwarinpa Estate', 9.1086, 7.4111)" class="p-2.5 text-left border rounded-xl hover:border-emerald-600 hover:bg-emerald-50/50 transition-colors">
+          <div class="text-xs font-bold text-zinc-900">Gwarinpa Estate</div>
+          <span class="text-[10px] text-zinc-500">1st–5th Avenues</span>
+        </button>
+        <button onclick="selectManualNeighborhood('Wuse 2', 9.0765, 7.4722)" class="p-2.5 text-left border rounded-xl hover:border-emerald-600 hover:bg-emerald-50/50 transition-colors">
+          <div class="text-xs font-bold text-zinc-900">Wuse 2</div>
+          <span class="text-[10px] text-zinc-500">Adetokunbo Ademola</span>
+        </button>
+        <button onclick="selectManualNeighborhood('Maitama', 9.0882, 7.4984)" class="p-2.5 text-left border rounded-xl hover:border-emerald-600 hover:bg-emerald-50/50 transition-colors">
+          <div class="text-xs font-bold text-zinc-900">Maitama</div>
+          <span class="text-[10px] text-zinc-500">Aguiyi Ironsi</span>
+        </button>
+        <button onclick="selectManualNeighborhood('Jabi / Utako', 9.0667, 7.4333)" class="p-2.5 text-left border rounded-xl hover:border-emerald-600 hover:bg-emerald-50/50 transition-colors">
+          <div class="text-xs font-bold text-zinc-900">Jabi / Utako</div>
+          <span class="text-[10px] text-zinc-500">Lake Mall Area</span>
+        </button>
+      </div>
+
+      <div class="mb-2">
+        <label class="text-[11px] font-semibold text-zinc-600 block mb-1">Search Radius Distance: <span id="radius-val" class="font-bold text-emerald-800">5km</span></label>
+        <input type="range" min="1" max="20" value="5" id="radius-slider" oninput="updateRadius(this.value)" class="w-full accent-[#00875A] cursor-pointer" />
+        <div class="flex justify-between text-[10px] text-zinc-400 mt-0.5">
+          <span>1km (Walking)</span>
+          <span>5km (Default)</span>
+          <span>20km (Greater Abuja)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- ACTION / CONTACT BOTTOM SHEET MODAL        -->
+  <!-- ========================================== -->
+  <div id="action-sheet-modal" class="hidden fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-xs p-0 transition-opacity">
+    <div class="bg-white w-full max-w-md rounded-t-3xl p-5 shadow-2xl animate-in slide-in-from-bottom duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-100 mb-3">
+        <h3 id="modal-item-title" class="text-sm font-bold text-zinc-900">Contact Vendor</h3>
+        <button onclick="closeActionSheet()" class="text-zinc-400 hover:text-zinc-700 text-sm p-1">✕</button>
+      </div>
+      <p id="modal-item-sub" class="text-xs text-zinc-600 mb-4"></p>
+      
+      <div class="space-y-2.5">
+        <button onclick="launchWhatsAppCTA()" class="w-full py-3 bg-[#00875A] hover:bg-emerald-700 text-white font-semibold text-xs rounded-xl shadow-sm flex items-center justify-center gap-2 m3-press-active">
+          <span>💬 Open Direct WhatsApp Chat</span>
+        </button>
+        <button onclick="handleEscrowOrderCTA()" class="w-full py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs rounded-xl shadow-sm flex items-center justify-center gap-2 m3-press-active">
+          <span>🛡️ Lock Payment with WYD Escrow</span>
+        </button>
+        <button onclick="closeActionSheet()" class="w-full py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-semibold text-xs rounded-xl">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC & PWA LIFECYCLE SCRIPTS   -->
+  <!-- ========================================== -->
+  <script>
+    /**
+     * WYD (WhereYouDey) - Hyperlocal Search & PWA Initialization Script
+     */
+    
+    // Application State
+    let activeCoordinates = { lat: 9.1086, lng: 7.4111 }; // Gwarinpa Baseline
+    let activeLocationName = "Gwarinpa";
+    let activeRadiusKm = 5;
+    let deferredPrompt = null;
+    let activeTabId = 'view-home';
+    let currentFilteredCategory = 'all';
+
+    // Mock Sample Database for Local Abuja Grid
+    const LOCAL_INVENTORY = [
+      {
+        id: 1,
+        title: "Express Gas Refill & Delivery (12.5kg)",
+        category: "goods",
+        categoryLabel: "Gas & Energy",
+        price: "₦14,500",
+        distance: "0.8km",
+        location: "3rd Avenue, Gwarinpa",
+        verified: true,
+        urgent: true,
+        rating: 4.9,
+        reviewsCount: 54,
+        speed: "15 min delivery",
+        tags: ["gas", "cooking gas", "cylinder", "refill"]
+      },
+      {
+        id: 2,
+        title: "Engr. Paul - Emergency Plumber & Borehole Tech",
+        category: "services",
+        categoryLabel: "Artisan Service",
+        price: "₦5,000 callout",
+        distance: "1.2km",
+        location: "1st Avenue Junction, Gwarinpa",
+        verified: true,
+        urgent: true,
+        rating: 4.9,
+        reviewsCount: 38,
+        speed: "Available now",
+        tags: ["plumber", "plumbing", "pipe", "borehole", "leak", "artisan"]
+      },
+      {
+        id: 3,
+        title: "UK-Used iPhone 14 Pro Max (256GB, Battery 92%)",
+        category: "goods",
+        categoryLabel: "Gadgets",
+        price: "₦740,000",
+        distance: "1.5km",
+        location: "Gwarinpa Shopping Plaza",
+        verified: true,
+        urgent: false,
+        rating: 4.8,
+        reviewsCount: 19,
+        speed: "In-store inspection",
+        tags: ["iphone", "phone", "apple", "gadget", "mobile"]
+      },
+      {
+        id: 4,
+        title: "Adanna Luxury Knotless Braids & Wig Revival",
+        category: "services",
+        categoryLabel: "Beauty & Hair",
+        price: "From ₦8,000",
+        distance: "2.1km",
+        location: "4th Avenue Gate, Gwarinpa",
+        verified: true,
+        urgent: false,
+        rating: 5.0,
+        reviewsCount: 62,
+        speed: "Home service available",
+        tags: ["braids", "hair", "salon", "wigs", "knotless"]
+      },
+      {
+        id: 5,
+        title: "Lutian 3.5kVA Generator with Key-Starter (Neighbor P2P)",
+        category: "p2p",
+        categoryLabel: "Neighbor P2P",
+        price: "₦185,000",
+        distance: "1.9km",
+        location: "5th Avenue Close, Gwarinpa",
+        verified: false,
+        urgent: true,
+        rating: 4.7,
+        reviewsCount: 8,
+        speed: "Cash / Escrow on pickup",
+        tags: ["generator", "lutian", "p2p", "power", "used"]
+      },
+      {
+        id: 6,
+        title: "Chinedu Emergency Electrician & Solar Inverter Fix",
+        category: "services",
+        categoryLabel: "Artisan Service",
+        price: "₦4,500 callout",
+        distance: "2.4km",
+        location: "Charlie Boy Bus Stop, Gwarinpa",
+        verified: true,
+        urgent: true,
+        rating: 4.9,
+        reviewsCount: 41,
+        speed: "Rapid response",
+        tags: ["electrician", "inverter", "solar", "wiring", "light"]
+      }
+    ];
+
+    // ==========================================
+    // STEP 2: REGISTER SERVICE WORKER
+    // ==========================================
+    function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then((registration) => {
+              console.log('WYD Service Worker registered with scope:', registration.scope);
+            })
+            .catch((error) => {
+              console.warn('WYD Service Worker registration failed:', error);
+            });
+        });
+      }
+    }
+
+    // ==========================================
+    // STEP 3: INTERCEPT PWA INSTALLATION
+    // ==========================================
+    function initPWAInstallPrompt() {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent default mini-infobar on mobile
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        // Check if already in standalone display mode
+        const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        if (!isStandalone) {
+          showInstallBanner();
+        }
+      });
+
+      window.addEventListener('appinstalled', () => {
+        console.log('WYD PWA was successfully installed.');
+        deferredPrompt = null;
+        dismissInstallBanner();
+      });
+    }
+
+    function showInstallBanner() {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) {
+        banner.classList.remove('hidden');
+      }
+    }
+
+    function dismissInstallBanner() {
+      const banner = document.getElementById('pwa-install-banner');
+      if (banner) {
+        banner.classList.add('hidden');
+      }
+    }
+
+    async function executePWAInstallation() {
+      if (!deferredPrompt) {
+        // For browsers where prompt cannot be triggered programmatically (e.g. iOS or manual)
+        alert('To add WYD to your Home Screen: Tap your browser Share/Menu button and select "Add to Home Screen".');
+        dismissInstallBanner();
+        return;
+      }
+      try {
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        console.log('User PWA install response:', choice.outcome);
+        deferredPrompt = null;
+        dismissInstallBanner();
+      } catch (err) {
+        console.error('Error invoking PWA install:', err);
+      }
+    }
+
+    // ==========================================
+    // STEP 4 & 5: CHECK LOCATION SERVICES
+    // ==========================================
+    async function checkLocationServices() {
+      updateSplashStatus("Checking local neighborhood context...");
+      
+      try {
+        // 1. Check localStorage for cached neighborhood context
+        const cached = localStorage.getItem('wyd_neighborhood');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.lat && parsed.lng) {
+            console.log("Found cached neighborhood:", parsed);
+            bootHomeScreen(parsed.lat, parsed.lng, parsed.name || "Gwarinpa Estate");
+            return;
+          }
+        }
+
+        // 2. If not found, request native browser geo-location
+        if ('geolocation' in navigator) {
+          updateSplashStatus("Acquiring GPS neighborhood lock...");
+          
+          const geoOptions = {
+            enableHighAccuracy: true,
+            timeout: 6000,
+            maximumAge: 120000
+          };
+
+          navigator.geolocation.getCurrentPosition(
+            // Geolocation GRANTED
+            (position) => {
+              const lat = position.coords.latitude;
+              const lng = position.coords.longitude;
+              const resolvedContext = "Gwarinpa Estate";
+              
+              // Cache coordinates
+              localStorage.setItem('wyd_neighborhood', JSON.stringify({
+                lat: lat,
+                lng: lng,
+                name: resolvedContext,
+                timestamp: Date.now()
+              }));
+
+              bootHomeScreen(lat, lng, resolvedContext);
+            },
+            // Geolocation DENIED / TIMED OUT
+            async (err) => {
+              console.warn("Geolocation denied or timed out:", err.message);
+              await handleGeoFallback();
+            },
+            geoOptions
+          );
+        } else {
+          await handleGeoFallback();
+        }
+      } catch (e) {
+        console.error("Location resolution error:", e);
+        await handleGeoFallback();
+      }
+    }
+
+    // Fallback: IP-lookup or Gwarinpa Default + Top Alert Banner
+    async function handleGeoFallback() {
+      updateSplashStatus("Resolving nearest city cluster...");
+      let resolvedCity = "Gwarinpa";
+
+      try {
+        // Try IP Lookup
+        const res = await fetch('https://ipapi.co/json/', { timeout: 3500 });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.city) {
+            resolvedCity = data.city;
+          }
+        }
+      } catch (ipErr) {
+        console.warn("IP Lookup unavailable, utilizing Abuja Gwarinpa baseline:", ipErr);
+      }
+
+      // Default to Gwarinpa coordinates (Lat 9.1086, Lng 7.4111)
+      const fallbackLat = 9.1086;
+      const fallbackLng = 7.4111;
+      
+      // Inject top alert banner: "Showing items near Gwarinpa. Tap to pinpoint exactly."
+      injectTopAlertBanner("Showing items near Gwarinpa. Tap to pinpoint exactly.");
+
+      bootHomeScreen(fallbackLat, fallbackLng, "Gwarinpa");
+    }
+
+    function updateSplashStatus(text) {
+      const el = document.getElementById('splash-status-text');
+      if (el) el.innerText = text;
+    }
+
+    function injectTopAlertBanner(msg) {
+      const banner = document.getElementById('top-alert-banner');
+      const textEl = document.getElementById('top-alert-banner-text');
+      if (banner && textEl) {
+        textEl.innerText = msg;
+        banner.classList.remove('hidden');
+      }
+    }
+
+    function dismissTopAlert() {
+      const banner = document.getElementById('top-alert-banner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    // ==========================================
+    // STEP 6: BOOT HOME SCREEN & UNHIDE CONTAINER
+    // ==========================================
+    function bootHomeScreen(lat, lng, proximityString) {
+      activeCoordinates = { lat, lng };
+      activeLocationName = proximityString || "Gwarinpa";
+      
+      // Update top bar location badge button: "📍 Gwarinpa (5km)"
+      const badgeLabel = document.getElementById('active-location-label');
+      if (badgeLabel) {
+        badgeLabel.innerText = `${activeLocationName} (${activeRadiusKm}km)`;
+      }
+
+      const hintRadius = document.getElementById('hint-radius-text');
+      if (hintRadius) {
+        hintRadius.innerText = `${activeRadiusKm}km radius in ${activeLocationName}`;
+      }
+
+      // Smoothly fade out splash loader
+      const splash = document.getElementById('splash-loader');
+      const appContainer = document.getElementById('app-container');
+
+      setTimeout(() => {
+        if (splash) {
+          splash.style.opacity = '0';
+          setTimeout(() => {
+            splash.style.display = 'none';
+          }, 450);
+        }
+
+        // Unhide main application container
+        if (appContainer) {
+          appContainer.classList.remove('opacity-0');
+          appContainer.classList.add('opacity-100');
+        }
+      }, 300);
+    }
+
+    // ==========================================
+    // SEARCH ENGINE & SHORTCUT PILLS
+    // ==========================================
+    function initSearchEngine() {
+      const searchInput = document.getElementById('wyd-main-search');
+      const clearBtn = document.getElementById('clear-search-btn');
+
+      if (!searchInput) return;
+
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
+        if (query.length > 0) {
+          clearBtn.classList.remove('hidden');
+          executeSearch(query);
+        } else {
+          clearBtn.classList.add('hidden');
+          resetToPromptCanvas();
+        }
+      });
+
+      searchInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          searchInput.blur();
+        }
+      });
+    }
+
+    function clearSearchInput() {
+      const searchInput = document.getElementById('wyd-main-search');
+      const clearBtn = document.getElementById('clear-search-btn');
+      if (searchInput) {
+        searchInput.value = '';
+        searchInput.focus();
+      }
+      if (clearBtn) {
+        clearBtn.classList.add('hidden');
+      }
+      resetToPromptCanvas();
+    }
+
+    function quickQuery(term) {
+      const searchInput = document.getElementById('wyd-main-search');
+      if (searchInput) {
+        searchInput.value = term;
+        document.getElementById('clear-search-btn')?.classList.remove('hidden');
+        executeSearch(term.toLowerCase());
+      }
+    }
+
+    function triggerPillSearch(pillLabel, categoryKey) {
+      currentFilteredCategory = categoryKey;
+      const searchInput = document.getElementById('wyd-main-search');
+      if (searchInput) {
+        searchInput.value = pillLabel;
+        document.getElementById('clear-search-btn')?.classList.remove('hidden');
+      }
+      executeCategoryFilter(categoryKey);
+    }
+
+    function executeCategoryFilter(category) {
+      const filtered = LOCAL_INVENTORY.filter(item => {
+        if (category === 'goods') return item.category === 'goods';
+        if (category === 'services') return item.category === 'services';
+        if (category === 'p2p') return item.category === 'p2p';
+        return true;
+      });
+      renderResults(filtered, `Category: ${category.toUpperCase()}`);
+    }
+
+    function executeSearch(query) {
+      const filtered = LOCAL_INVENTORY.filter(item => {
+        const inTitle = item.title.toLowerCase().includes(query);
+        const inTags = item.tags.some(t => t.includes(query));
+        const inLocation = item.location.toLowerCase().includes(query);
+        return inTitle || inTags || inLocation;
+      });
+      renderResults(filtered, `Results for "${query}"`);
+    }
+
+    function renderResults(items, heading) {
+      const promptCanvas = document.getElementById('default-prompt-canvas');
+      const resultsWrapper = document.getElementById('search-results-wrapper');
+      const headingEl = document.getElementById('search-query-heading');
+      const countEl = document.getElementById('search-count-label');
+      const grid = document.getElementById('results-cards-grid');
+
+      if (promptCanvas) promptCanvas.classList.add('hidden');
+      if (resultsWrapper) resultsWrapper.classList.remove('hidden');
+
+      if (headingEl) headingEl.innerText = heading;
+      if (countEl) countEl.innerText = `${items.length} verified listings within ${activeRadiusKm}km of ${activeLocationName}`;
+
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      if (items.length === 0) {
+        grid.innerHTML = `
+          <div class="py-12 text-center text-zinc-500 bg-zinc-50 rounded-2xl border border-zinc-200">
+            <span class="text-3xl block mb-2">🔍</span>
+            <p class="text-xs font-semibold text-zinc-800">No exact matches in ${activeLocationName} right now</p>
+            <p class="text-[11px] text-zinc-500 mt-1">Try expanding search radius to 10km or browsing shortcut pills.</p>
+          </div>
+        `;
+        return;
+      }
+
+      items.forEach(item => {
+        const card = document.createElement('div');
+        card.className = "bg-white border border-zinc-200 hover:border-emerald-600 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all m3-press-active cursor-pointer";
+        card.onclick = () => openActionSheet(item);
+
+        const verifiedBadge = item.verified 
+          ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+               <svg class="w-3 h-3 text-[#00875A]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+               Verified
+             </span>`
+          : `<span class="inline-flex items-center text-[10px] font-medium text-zinc-600 bg-zinc-100 px-2 py-0.5 rounded-full">Neighbor P2P</span>`;
+
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2 mb-1.5">
+            <div class="flex items-center gap-1.5">
+              ${verifiedBadge}
+              <span class="text-[11px] font-medium text-zinc-500">${item.categoryLabel}</span>
+            </div>
+            <span class="text-xs font-extrabold text-[#00875A]">${item.price}</span>
+          </div>
+
+          <h4 class="text-sm font-bold text-zinc-900 leading-snug mb-1">${item.title}</h4>
+          
+          <div class="flex items-center gap-2 text-xs text-zinc-500 mb-2.5">
+            <span>📍 ${item.location}</span>
+            <span>•</span>
+            <span class="font-semibold text-zinc-700">${item.distance}</span>
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-zinc-100 text-xs">
+            <div class="flex items-center gap-1">
+              <span class="text-amber-500 font-bold">★ ${item.rating}</span>
+              <span class="text-[11px] text-zinc-400">(${item.reviewsCount})</span>
+            </div>
+            <span class="text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
+              ⚡ ${item.speed}
+            </span>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function resetToPromptCanvas() {
+      const promptCanvas = document.getElementById('default-prompt-canvas');
+      const resultsWrapper = document.getElementById('search-results-wrapper');
+      if (promptCanvas) promptCanvas.classList.remove('hidden');
+      if (resultsWrapper) resultsWrapper.classList.add('hidden');
+    }
+
+    function filterResults(type) {
+      const allBtn = document.getElementById('filter-all-btn');
+      const verBtn = document.getElementById('filter-verified-btn');
+      const urgBtn = document.getElementById('filter-urgent-btn');
+
+      [allBtn, verBtn, urgBtn].forEach(b => {
+        if (b) {
+          b.className = "text-[11px] font-medium px-2 py-1 rounded-md bg-zinc-100 text-zinc-600 hover:bg-zinc-200";
+        }
+      });
+
+      let filtered = [...LOCAL_INVENTORY];
+      if (type === 'verified') {
+        filtered = filtered.filter(i => i.verified);
+        if (verBtn) verBtn.className = "text-[11px] font-medium px-2 py-1 rounded-md bg-zinc-800 text-white";
+      } else if (type === 'urgent') {
+        filtered = filtered.filter(i => i.urgent);
+        if (urgBtn) urgBtn.className = "text-[11px] font-medium px-2 py-1 rounded-md bg-zinc-800 text-white";
+      } else {
+        if (allBtn) allBtn.className = "text-[11px] font-medium px-2 py-1 rounded-md bg-zinc-800 text-white";
+      }
+      renderResults(filtered, "Filtered Listings");
+    }
+
+    // ==========================================
+    // 4-TAB BOTTOM NAVIGATION ROUTER STATE
+    // ==========================================
+    const VIEW_CONTAINERS = [
+      'view-home',
+      'view-my-business',
+      'view-confirm',
+      'view-reviews',
+      'view-complaints'
+    ];
+
+    function switchNavTab(targetViewId) {
+      activeTabId = targetViewId;
+
+      // 1. Toggle visibility layers between primary view containers
+      VIEW_CONTAINERS.forEach(id => {
+        const viewEl = document.getElementById(id);
+        if (viewEl) {
+          if (id === targetViewId) {
+            viewEl.classList.remove('hidden');
+          } else {
+            viewEl.classList.add('hidden');
+          }
+        }
+      });
+
+      // 2. Update navigation tab active styling
+      updateNavStyles(targetViewId);
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateNavStyles(activeId) {
+      const tabMap = {
+        'view-my-business': 'nav-btn-my-business',
+        'view-confirm': 'nav-btn-confirm',
+        'view-reviews': 'nav-btn-reviews',
+        'view-complaints': 'nav-btn-complaints'
+      };
+
+      Object.values(tabMap).forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.classList.remove('text-[#00875A]', 'font-bold');
+          btn.classList.add('text-zinc-500');
+        }
+      });
+
+      const activeBtnId = tabMap[activeId];
+      if (activeBtnId) {
+        const activeBtn = document.getElementById(activeBtnId);
+        if (activeBtn) {
+          activeBtn.classList.remove('text-zinc-500');
+          activeBtn.classList.add('text-[#00875A]', 'font-bold');
+        }
+      }
+    }
+
+    // ==========================================
+    // ACTION MODALS & INTERACTION HANDLERS
+    // ==========================================
+    let currentSelectedListing = null;
+
+    function openActionSheet(item) {
+      currentSelectedListing = item;
+      const modal = document.getElementById('action-sheet-modal');
+      const title = document.getElementById('modal-item-title');
+      const sub = document.getElementById('modal-item-sub');
+
+      if (title) title.innerText = item.title;
+      if (sub) sub.innerText = `${item.price} • ${item.location} (${item.distance})`;
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeActionSheet() {
+      const modal = document.getElementById('action-sheet-modal');
+      if (modal) modal.classList.add('hidden');
+      currentSelectedListing = null;
+    }
+
+    function launchWhatsAppCTA() {
+      if (!currentSelectedListing) return;
+      alert(`Connecting to ${currentSelectedListing.title} via WhatsApp neighborhood gateway...`);
+      closeActionSheet();
+    }
+
+    function handleEscrowOrderCTA() {
+      if (!currentSelectedListing) return;
+      alert(`Locking ${currentSelectedListing.price} in SafeEscrow for ${currentSelectedListing.title}. Your release verification code will be generated.`);
+      closeActionSheet();
+      switchNavTab('view-confirm');
+    }
+
+    function handleConfirmRelease(itemTitle, amount) {
+      alert(`Success! Handshake confirmed. ${amount} released to verified provider.`);
+      switchNavTab('view-home');
+    }
+
+    // Location Picker Modal Handlers
+    function openLocationPickerModal() {
+      const modal = document.getElementById('location-picker-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeLocationPickerModal() {
+      const modal = document.getElementById('location-picker-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function selectManualNeighborhood(name, lat, lng) {
+      activeLocationName = name;
+      activeCoordinates = { lat, lng };
+      localStorage.setItem('wyd_neighborhood', JSON.stringify({
+        lat, lng, name, timestamp: Date.now()
+      }));
+
+      bootHomeScreen(lat, lng, name);
+      dismissTopAlert();
+      closeLocationPickerModal();
+    }
+
+    function retryNativeGeolocation() {
+      closeLocationPickerModal();
+      localStorage.removeItem('wyd_neighborhood');
+      checkLocationServices();
+    }
+
+    function updateRadius(val) {
+      activeRadiusKm = val;
+      const valLabel = document.getElementById('radius-val');
+      if (valLabel) valLabel.innerText = `${val}km`;
+      
+      const badgeLabel = document.getElementById('active-location-label');
+      if (badgeLabel) badgeLabel.innerText = `${activeLocationName} (${activeRadiusKm}km)`;
+
+      const hintRadius = document.getElementById('hint-radius-text');
+      if (hintRadius) hintRadius.innerText = `${activeRadiusKm}km radius in ${activeLocationName}`;
+    }
+
+    function openNewListingModal() {
+      alert("New Listing Studio: Upload photo, enter price in ₦ Naira, and pin your Gwarinpa avenue.");
+    }
+
+    function openReviewModal() {
+      alert("Leave a Verified Vouch: Rate service speed, punctuality, and fair pricing for your neighbor.");
+    }
+
+    function openComplaintModal() {
+      alert("WYD Rapid Dispute: Describe the issue and attach proof. Our Gwarinpa community moderator contacts both parties within 15 minutes.");
+    }
+
+    // ==========================================
+    // INITIALIZATION LIFECYCLE SEQUENCE
+    // ==========================================
+    window.addEventListener('DOMContentLoaded', () => {
+      // Step 2: Register service worker mapping to './sw.js'
+      registerServiceWorker();
+
+      // Step 3: Intercept PWA Installation
+      initPWAInstallPrompt();
+
+      // Initialize Search Engine components
+      initSearchEngine();
+
+      // Step 4 & 5: Execute checkLocationServices() while splash is visible
+      checkLocationServices();
+    });
+  </script>
+</body>
+</html>
